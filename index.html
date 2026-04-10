@@ -1,0 +1,592 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Igor's App - Online Version</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 800px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2rem;
+        }
+
+        h2 {
+            color: #667eea;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            font-size: 1.5rem;
+        }
+
+        p {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d0d0d0;
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .error {
+            background: #fee;
+            border-left: 4px solid #f44336;
+            color: #c62828;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .success {
+            background: #e8f5e9;
+            border-left: 4px solid #4caf50;
+            color: #2e7d32;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .loading::after {
+            content: '';
+            width: 40px;
+            height: 40px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        #status-display {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            color: #333;
+        }
+
+        .data-section {
+            background: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .data-item {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .data-item strong {
+            color: #667eea;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        input[type="text"], textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            font-family: inherit;
+            margin-bottom: 15px;
+            transition: border-color 0.3s ease;
+        }
+
+        input[type="text"]:focus, textarea:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card .number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-card .label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="app-container">
+        <div class="container">
+            <h1>Igor's App <span class="version-badge">v1.0.0</span></h1>
+            <p>Online version - Fully functional in your browser</p>
+
+            <div id="error-message" class="error hidden"></div>
+            <div id="loading-indicator" class="loading hidden"></div>
+            <div id="status-display" class="hidden"></div>
+
+            <div id="main-content">
+                <h2>Dashboard</h2>
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="number" id="stat-items">0</div>
+                        <div class="label">Items Stored</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="stat-actions">0</div>
+                        <div class="label">Actions Performed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="number" id="stat-uptime">0s</div>
+                        <div class="label">Session Time</div>
+                    </div>
+                </div>
+
+                <h2>Add New Item</h2>
+                <div class="data-section">
+                    <input type="text" id="item-title" placeholder="Enter item title...">
+                    <textarea id="item-description" placeholder="Enter item description..."></textarea>
+                    <button class="btn btn-primary" onclick="addItem()">Add Item</button>
+                    <button class="btn btn-secondary" onclick="clearForm()">Clear</button>
+                </div>
+
+                <h2>Your Items</h2>
+                <div id="items-list" class="data-section">
+                    <p style="color: #999; text-align: center;">No items yet. Add your first item above!</p>
+                </div>
+
+                <h2>Actions</h2>
+                <div style="margin: 20px 0;">
+                    <button class="btn btn-primary" onclick="exportData()">Export Data</button>
+                    <button class="btn btn-secondary" onclick="importData()">Import Data</button>
+                    <button class="btn btn-secondary" onclick="clearAllData()">Clear All Data</button>
+                    <button class="btn btn-secondary" onclick="generateReport()">Generate Report</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const APP_VERSION = '1.0.0';
+        const STORAGE_KEY = 'igorsAppData';
+        
+        let appData = {
+            items: [],
+            actionCount: 0,
+            startTime: Date.now()
+        };
+
+        let uptimeInterval = null;
+
+        function initApp() {
+            showLoading();
+            updateStatus('Initializing application...');
+
+            try {
+                const savedData = localStorage.getItem(STORAGE_KEY);
+                if (savedData) {
+                    appData = JSON.parse(savedData);
+                    appData.startTime = Date.now();
+                    updateStatus('Loaded saved data from browser storage');
+                } else {
+                    updateStatus('Starting fresh - no saved data found');
+                }
+
+                renderItems();
+                updateStats();
+                hideLoading();
+                updateStatus('Application ready!');
+
+                uptimeInterval = setInterval(updateUptime, 1000);
+
+                setTimeout(() => {
+                    const statusEl = document.getElementById('status-display');
+                    if (statusEl) statusEl.classList.add('hidden');
+                }, 3000);
+            } catch (error) {
+                hideLoading();
+                handleError('Failed to initialize app: ' + error.message);
+            }
+        }
+
+        function handleError(message) {
+            const errorEl = document.getElementById('error-message');
+            if (errorEl) {
+                errorEl.textContent = message;
+                errorEl.classList.remove('hidden');
+                
+                setTimeout(() => {
+                    errorEl.classList.add('hidden');
+                }, 5000);
+            }
+            console.error(message);
+        }
+
+        function showLoading() {
+            const loadingEl = document.getElementById('loading-indicator');
+            if (loadingEl) loadingEl.classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            const loadingEl = document.getElementById('loading-indicator');
+            if (loadingEl) loadingEl.classList.add('hidden');
+        }
+
+        function updateStatus(message) {
+            const statusEl = document.getElementById('status-display');
+            if (statusEl) {
+                statusEl.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+                statusEl.classList.remove('hidden');
+            }
+        }
+
+        function saveData() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(appData));
+            } catch (error) {
+                handleError('Failed to save data: ' + error.message);
+            }
+        }
+
+        function addItem() {
+            const titleEl = document.getElementById('item-title');
+            const descEl = document.getElementById('item-description');
+            
+            const title = titleEl.value.trim();
+            const description = descEl.value.trim();
+
+            if (!title) {
+                handleError('Please enter a title');
+                return;
+            }
+
+            const newItem = {
+                id: Date.now().toString(),
+                title: title,
+                description: description,
+                createdAt: new Date().toISOString(),
+                completed: false
+            };
+
+            appData.items.push(newItem);
+            appData.actionCount++;
+            
+            saveData();
+            renderItems();
+            updateStats();
+            clearForm();
+            
+            updateStatus(`Added item: ${title}`);
+        }
+
+        function clearForm() {
+            document.getElementById('item-title').value = '';
+            document.getElementById('item-description').value = '';
+        }
+
+        function renderItems() {
+            const listEl = document.getElementById('items-list');
+            
+            if (appData.items.length === 0) {
+                listEl.innerHTML = '<p style="color: #999; text-align: center;">No items yet. Add your first item above!</p>';
+                return;
+            }
+
+            listEl.innerHTML = appData.items.map(item => `
+                <div class="data-item">
+                    <strong>${item.title}</strong>
+                    <p>${item.description || 'No description'}</p>
+                    <small style="color: #999;">Created: ${new Date(item.createdAt).toLocaleString()}</small>
+                    <div style="margin-top: 10px;">
+                        <button class="btn ${item.completed ? 'btn-secondary' : 'btn-primary'}" 
+                                onclick="toggleItem('${item.id}')" 
+                                style="padding: 8px 16px; font-size: 14px;">
+                            ${item.completed ? 'Mark Incomplete' : 'Mark Complete'}
+                        </button>
+                        <button class="btn btn-secondary" 
+                                onclick="deleteItem('${item.id}')" 
+                                style="padding: 8px 16px; font-size: 14px;">
+                            Delete
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleItem(id) {
+            const item = appData.items.find(i => i.id === id);
+            if (item) {
+                item.completed = !item.completed;
+                appData.actionCount++;
+                saveData();
+                renderItems();
+                updateStats();
+                updateStatus(`Toggled item: ${item.title}`);
+            }
+        }
+
+        function deleteItem(id) {
+            const item = appData.items.find(i => i.id === id);
+            if (item && confirm(`Delete "${item.title}"?`)) {
+                appData.items = appData.items.filter(i => i.id !== id);
+                appData.actionCount++;
+                saveData();
+                renderItems();
+                updateStats();
+                updateStatus(`Deleted item: ${item.title}`);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('stat-items').textContent = appData.items.length;
+            document.getElementById('stat-actions').textContent = appData.actionCount;
+        }
+
+        function updateUptime() {
+            const seconds = Math.floor((Date.now() - appData.startTime) / 1000);
+            const minutes = Math.floor(seconds / 60);
+            const hours = Math.floor(minutes / 60);
+            
+            let uptimeText = '';
+            if (hours > 0) {
+                uptimeText = `${hours}h ${minutes % 60}m`;
+            } else if (minutes > 0) {
+                uptimeText = `${minutes}m ${seconds % 60}s`;
+            } else {
+                uptimeText = `${seconds}s`;
+            }
+            
+            document.getElementById('stat-uptime').textContent = uptimeText;
+        }
+
+        function exportData() {
+            try {
+                const dataStr = JSON.stringify(appData, null, 2);
+                const dataBlob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(dataBlob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `igors-app-export-${Date.now()}.json`;
+                link.click();
+                URL.revokeObjectURL(url);
+                
+                appData.actionCount++;
+                saveData();
+                updateStats();
+                updateStatus('Data exported successfully');
+            } catch (error) {
+                handleError('Failed to export data: ' + error.message);
+            }
+        }
+
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+            
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const importedData = JSON.parse(event.target.result);
+                        
+                        if (confirm('This will replace your current data. Continue?')) {
+                            appData = importedData;
+                            appData.startTime = Date.now();
+                            appData.actionCount++;
+                            saveData();
+                            renderItems();
+                            updateStats();
+                            updateStatus('Data imported successfully');
+                        }
+                    } catch (error) {
+                        handleError('Failed to import data: Invalid file format');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            
+            input.click();
+        }
+
+        function clearAllData() {
+            if (confirm('Are you sure you want to delete all data? This cannot be undone.')) {
+                appData = {
+                    items: [],
+                    actionCount: 0,
+                    startTime: Date.now()
+                };
+                localStorage.removeItem(STORAGE_KEY);
+                renderItems();
+                updateStats();
+                updateStatus('All data cleared');
+            }
+        }
+
+        function generateReport() {
+            const report = {
+                generatedAt: new Date().toISOString(),
+                version: APP_VERSION,
+                totalItems: appData.items.length,
+                completedItems: appData.items.filter(i => i.completed).length,
+                pendingItems: appData.items.filter(i => !i.completed).length,
+                totalActions: appData.actionCount,
+                items: appData.items.map(item => ({
+                    title: item.title,
+                    status: item.completed ? 'Complete' : 'Pending',
+                    createdAt: item.createdAt
+                }))
+            };
+
+            const reportStr = `
+IGOR'S APP - ACTIVITY REPORT
+Generated: ${new Date().toLocaleString()}
+Version: ${APP_VERSION}
+
+SUMMARY
+-------
+Total Items: ${report.totalItems}
+Completed: ${report.completedItems}
+Pending: ${report.pendingItems}
+Total Actions: ${report.totalActions}
+
+ITEMS
+-----
+${report.items.map((item, i) => `${i + 1}. [${item.status}] ${item.title}
+   Created: ${new Date(item.createdAt).toLocaleString()}`).join('\n\n')}
+            `.trim();
+
+            const blob = new Blob([reportStr], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `igors-app-report-${Date.now()}.txt`;
+            link.click();
+            URL.revokeObjectURL(url);
+
+            appData.actionCount++;
+            saveData();
+            updateStats();
+            updateStatus('Report generated successfully');
+        }
+
+        window.addEventListener('DOMContentLoaded', initApp);
+
+        window.addEventListener('beforeunload', () => {
+            if (uptimeInterval) clearInterval(uptimeInterval);
+        });
+    </script>
+</body>
+</html>
+```
